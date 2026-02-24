@@ -18,6 +18,7 @@ public class Story {
 	 private String auther;
 	//endregion
 	 //region 2.Constructors
+	
 	public Story(){}
 	public Story(String title, String content, String auther){
 		this.title=title;

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/storyapp
+    username: storyuser
+    password: storypass
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

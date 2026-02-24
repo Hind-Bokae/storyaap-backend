@@ -24,12 +24,19 @@ public class GlobalExceptionHandler {
 		for (FieldError fieldError:fieldErrors){
 			errors.put(fieldError.getField(),fieldError.getDefaultMessage());
 		}
-		ErrorResponseDTO errorRespons= new ErrorResponseDTO();
-		errorRespons.setTimestamp(LocalDateTime.now());
-		errorRespons.setStatus(HttpStatus.BAD_REQUEST.value());
-		errorRespons.setMessage("Validation failed");
-		errorRespons.setErrors(errors);
+		ErrorResponseDTO errorResponse= new ErrorResponseDTO();
+		errorResponse.setTimestamp(LocalDateTime.now());
+		errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+		errorResponse.setMessage("Validation failed");
+		errorResponse.setErrors(errors);
 		
-		return new ResponseEntity<>(errorRespons, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ErrorResponse>handleRuntimeException(RuntimeException exception){
+		ErrorResponse errorResponse=new ErrorResponse(exception.getMessage(),HttpStatus.BAD_REQUEST.value());
+		
+		return new ResponseEntity<>(errorResponse,HttpStatus.BAD_REQUEST);
 	}
 }
