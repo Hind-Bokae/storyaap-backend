@@ -1,29 +1,37 @@
 package com.example.storyapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class Story {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	
 	//region 0. Constant
 	//endregion
+	
 	//region 1. Attribute
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	 private String title;
+	 @Column (length = 5000)
 	 private String content;
-	 private String auther;
+	private boolean published= false;
+	private LocalDateTime createdAt;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	 @JoinColumn(name = "user_id", nullable = false)
+	 private User author;
 	//endregion
 	 //region 2.Constructors
 	
 	public Story(){}
-	public Story(String title, String content, String auther){
+	public Story(String title, String content, User author){
 		this.title=title;
 		this.content=content;
-		this.auther=auther;
+		this.author=author;
+		
 	}
 	//endregion
 	//region 3.Getter & Setter
@@ -36,8 +44,24 @@ public class Story {
 	public String getContent(){return content;}
 	public void setContent(String content){this.content=content;}
 	
-	public String getAuther(){return auther;}
-	public void setAuther(String auther){this.auther=auther;}
+	public void setPublished(boolean published) {
+		this.published = published;
+	}
+	
+	public boolean isPublished() {
+		return published;
+	}
+	public User getAuthor(){return author;}
+	public void setAuthor(User author){this.author=author;}
+	
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+	
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 	//endregion
+	
 	
 }

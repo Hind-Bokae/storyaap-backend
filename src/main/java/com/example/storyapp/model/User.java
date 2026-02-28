@@ -2,9 +2,15 @@ package com.example.storyapp.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name="users")
 public class User {
+	//region 0. Constant
+	//endregion
+	//region 1. Attribute
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -57,4 +63,11 @@ public class User {
 	public Role getRole() {
 		return role;
 	}
+	
+	@OneToMany(
+			mappedBy = "author",
+			cascade = CascadeType.ALL,
+			orphanRemoval = true
+	)
+	private List<Story> stories = new ArrayList<>();
 }

@@ -6,7 +6,7 @@ import com.example.storyapp.dto.StoryDTO;
 import com.example.storyapp.dto.UpdateStoryDTO;
 import com.example.storyapp.mapper.StoryMapper;
 import com.example.storyapp.model.Story;
-import com.example.storyapp.service.StoryService;
+import com.example.storyapp.story.StoryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +24,7 @@ public class StoryController {
 	}
 	@PostMapping
 	public StoryDTO createStory(@Valid @RequestBody CreateStoryDTO createDto){
-		Story story = StoryMapper.toEntity(createDto);
-		Story savedStory=storyService.createStory(story);
+		Story savedStory=storyService.createStory(createDto);
 		return StoryMapper.toDTO(savedStory);
 	}
 	@GetMapping
@@ -57,18 +56,13 @@ public class StoryController {
 		
 	}
 	@PutMapping("/{id}")
-	public StoryDTO updateStory(@PathVariable Long id, @Valid @RequestBody UpdateStoryDTO updateDto){
-		Story story=storyService.getStoryById(id);
-		story.setTitle(updateDto.getTitle());
-		story.setContent(updateDto.getContent());
-		story.setAuther(updateDto.getAuther());
-		Story updatedStory = storyService.createStory(story);
-		return StoryMapper.toDTO(updatedStory);
+	public void updateStory(@PathVariable Long id, @Valid @RequestBody UpdateStoryDTO updateDto){
+		storyService.updateStory(id,updateDto);
+		
 	}
-	
 	@DeleteMapping("/{id}")
 	public void deleteStory(@PathVariable Long id){
 		Story story = storyService.getStoryById(id);
-		storyService.deleteStory(story);
+		storyService.deleteStory(id);
 	}
 }

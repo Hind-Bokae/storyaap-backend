@@ -2,20 +2,20 @@ package com.example.storyapp.dto;
 
 public class AuthResponse {
 
-    private String message;
+    private String token;
 
     public AuthResponse() {}
 
     public AuthResponse(String message) {
-        this.message = message;
+        this.token = message;
     }
 
-    public String getMessage() {
-        return message;
+    public String getToken() {
+        return token;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setToken(String token) {
+        this.token = token;
     }
 
 }

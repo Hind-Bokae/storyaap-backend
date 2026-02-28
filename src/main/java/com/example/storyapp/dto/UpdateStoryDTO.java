@@ -12,8 +12,6 @@ public class UpdateStoryDTO {
 	@Size(min = 10, message = "Content min 10 chare")
 	private String content;
 	
-	@NotBlank(message = "Auther is required")
-	private String auther;
 	
 	
 	public @NotBlank(message = "Title is required") @Size(min = 3, max = 100, message = "Title muss be 3-100 characters") String getTitle() {
@@ -32,11 +30,4 @@ public class UpdateStoryDTO {
 		this.content = content;
 	}
 	
-	public @NotBlank(message = "Auther is required") String getAuther() {
-		return auther;
-	}
-	
-	public void setAuther(@NotBlank(message = "Auther is required") String auther) {
-		this.auther = auther;
-	}
 }

@@ -10,7 +10,6 @@ public class StoryMapper {
 		Story story=new Story();
 		story.setTitle(dtoStory.getTitle());
 		story.setContent(dtoStory.getContent());
-		story.setAuther(dtoStory.getAuther());
 		return story;
 	}
 	public static StoryDTO toDTO(Story story){
@@ -18,7 +17,7 @@ public class StoryMapper {
 				story.getId(),
 				story.getTitle(),
 				story.getContent(),
-				story.getAuther()
+				story.getAuthor().getUsername()
 		);
 	}
 	

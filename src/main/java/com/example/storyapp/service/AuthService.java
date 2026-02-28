@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 	private final UserRepository  userRepository;
 	private final PasswordEncoder passwordEncoder;
-	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	private final JwtService jwtService;
+	public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder , JwtService jwtService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtService = jwtService;
 		System.out.println("Password encoder class: " +passwordEncoder.getClass());
 	}
 	
@@ -29,12 +31,13 @@ public class AuthService {
 		newUser.setRole(Role.USER);
 		userRepository.save(newUser);
 	}
-	public void login(AuthenticationRequest request){
+	public String  login(AuthenticationRequest request){
 		User existingUser= userRepository.findByUsername(request.getUsername())
 				.orElseThrow(()->new RuntimeException("user not found"));
 		if (!passwordEncoder.matches(request.getPassword(),existingUser.getPassword())){
 			throw new RuntimeException("Invalid password");
 		}
+		return jwtService.generateToken(existingUser.getUsername());
 	}
 	
 }
