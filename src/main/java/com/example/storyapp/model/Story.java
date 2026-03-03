@@ -1,6 +1,8 @@
 package com.example.storyapp.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.time.LocalDateTime;
 
@@ -14,10 +16,11 @@ public class Story {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	 private String title;
-	 @Column (length = 5000)
-	 private String content;
-	private boolean published= false;
+	private String title;
+	@Column (length = 5000)
+	private String content;
+	@Column(nullable = false)
+	private boolean published=false;
 	private LocalDateTime createdAt;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -61,6 +64,7 @@ public class Story {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+	
 	//endregion
 	
 	

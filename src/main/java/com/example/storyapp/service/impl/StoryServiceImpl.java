@@ -1,10 +1,10 @@
 package com.example.storyapp.service.impl;
 
-import com.example.storyapp.StoryRequest;
-import com.example.storyapp.dto.CreateStoryDTO;
-import com.example.storyapp.dto.StoryDTO;
-import com.example.storyapp.dto.UpdateStoryDTO;
-import com.example.storyapp.mapper.StoryMapper;
+import com.example.storyapp.dto.StoryRequest;
+import com.example.storyapp.dto.StoryResponse;
+import com.example.storyapp.exception.ForbiddenException;
+import com.example.storyapp.exception.StoryNotFoundException;
+import com.example.storyapp.model.Role;
 import com.example.storyapp.model.Story;
 import com.example.storyapp.model.User;
 import com.example.storyapp.repository.StoryRepository;
@@ -12,12 +12,12 @@ import com.example.storyapp.repository.UserRepository;
 import com.example.storyapp.story.StoryService;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,53 +33,75 @@ public class StoryServiceImpl implements StoryService {
 		this.userRepository = userRepository;
 		this.storyRepository = storyRepository;
 	}
+	@Override
+	public Page<StoryResponse> getPublishedStories(String keyword, int page, int size){
+		Pageable pageable = PageRequest.of(page, size);
+		
+		Page<Story> stories;
+		if (keyword == null || keyword.isEmpty()) {
+			stories = storyRepository.findByPublishedTrue(pageable);
+		} else {
+			stories = storyRepository
+					.findByPublishedTrueAndTitleContainingIgnoreCase(keyword, pageable);
+		}
+		return stories.map(this::convertToResponse);
+	}
 	//endregion
 	//region 3. Override Methods
 	@Override
-	public Story createStory(CreateStoryDTO createRequest){
-		User currentUser = getAuthenticatedUser();
-		Story newStory = StoryMapper.toEntity(createRequest);
-		newStory.setAuthor(currentUser);
-		newStory.setPublished(false);
-		newStory.setCreatedAt(LocalDateTime.now());
+	public Story createStory(StoryRequest createRequest){
+		String username = SecurityContextHolder
+				.getContext()
+				.getAuthentication()
+				.getName();
+		User user = userRepository
+				.findByUsername(username)
+				.orElseThrow();
+		Story newStory= new Story();
+		newStory.setTitle(createRequest.getTitle());
+		newStory.setContent(createRequest.getContent());
+		newStory.setAuthor(user);
 		return storyRepository.save(newStory);
 	}
 	@Override
-	public void updateStory(Long storyId, UpdateStoryDTO storyRequest){
+	public Story updateStory(Long storyId, StoryRequest storyRequest){
 		Story existingStory = storyRepository.findById(storyId)
 				.orElseThrow(() -> new RuntimeException("Story not found with id: " + storyId));
 		User authenticatedUser = getAuthenticatedUser();
 		validateStoryOwnership(existingStory, authenticatedUser);
 		existingStory.setTitle(storyRequest.getTitle());
 		existingStory.setContent(storyRequest.getContent());
-		storyRepository.save(existingStory);
+		return storyRepository.save(existingStory);
 	}
 	
 	@Override
-	public void deleteStory(Long storyId){
+	public void deleteStoryById(Long storyId){
 		Story existingStory = storyRepository.findById(storyId)
 				.orElseThrow(() -> new RuntimeException("Story not found with id: " + storyId));
 		User currentUser = getAuthenticatedUser();
 		validateStoryOwnership(existingStory, currentUser);
 		storyRepository.delete(existingStory);
 	}
-	public void publishStory(Long storyId){
+	@Override
+	public StoryResponse publishStory(Long storyId){
 		Story existingStory = storyRepository.findById(storyId)
 				.orElseThrow(() -> new RuntimeException("Story not found with id: " + storyId));
-		User authenticatedUser = getAuthenticatedUser();
-		validateStoryOwnership(existingStory, authenticatedUser);
 		existingStory.setPublished(true);
 		storyRepository.save(existingStory);
+		return convertToResponse(existingStory);
 	}
 	@Override
-	public List<Story>getAllStories(){
-		return storyRepository.findAll();
+	public StoryResponse unpublishStory(Long storyId){
+		Story existingStory = storyRepository.findById(storyId)
+				.orElseThrow(() -> new RuntimeException("Story not found with id: " + storyId));
+		existingStory.setPublished(false);
+		storyRepository.save(existingStory);
+		return convertToResponse(existingStory);
 	}
-	
 	@Override
 	public Story getStoryById(Long id){
 		return storyRepository.findById(id)
-				.orElseThrow(()-> new RuntimeException("Story not found"));
+				.orElseThrow(()-> new StoryNotFoundException("Story not found"));
 	}
 	 @Override
 	public Page<Story> searchStories(String searchTerm, Pageable pageable){
@@ -88,8 +110,8 @@ public class StoryServiceImpl implements StoryService {
 	//endregion
 	//region 4. Private Methods
 	private void validateStoryOwnership(Story existingStory, User authenticatedUser){
-		if (!existingStory.getAuthor().getId().equals(authenticatedUser.getId())) {
-			throw new RuntimeException("Forbidden!You are not authorized to update this story");
+		if (!existingStory.getAuthor().getId().equals(authenticatedUser.getId()) && authenticatedUser.getRole()!= Role.ADMIN) {
+			throw new ForbiddenException("You are not allowed");
 		}
 	}
 	
@@ -98,6 +120,15 @@ public class StoryServiceImpl implements StoryService {
 		String         username       = authentication.getName();
 		return userRepository.findByUsername(username).orElseThrow(() ->
 				new RuntimeException("Authenticated User not found"));}
+	private StoryResponse convertToResponse(Story story) {
+		return new StoryResponse(
+				story.getId(),
+				story.getTitle(),
+				story.getContent(),
+				story.getAuthor().getUsername(),
+				story.isPublished()
+		);
+	}
 	//endregion
 	
 	

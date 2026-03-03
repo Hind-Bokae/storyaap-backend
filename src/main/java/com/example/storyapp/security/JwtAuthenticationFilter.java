@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -36,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		
 		final String authHeader = request.getHeader("Authorization");
+		System.out.println("Auth Header: " + authHeader);
 		
 		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
@@ -43,8 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 		
 		String token = authHeader.substring(7);
-		String username = jwtService.extractUsername(token);
 		
+		String username =null;
+		try {
+			username = jwtService.extractUsername(token);
+		} catch (Exception invalidTokenException) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 		if (username != null &&
 				SecurityContextHolder.getContext().getAuthentication() == null) {
 			
@@ -55,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				UserDetails userDetails =
 						User.withUsername(user.getUsername())
 								.password(user.getPassword())
-								.authorities(Collections.emptyList())
+								.authorities("ROLE_"+user.getRole().name())
 								.build();
 				
 				UsernamePasswordAuthenticationToken authToken =
@@ -73,6 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext()
 						.setAuthentication(authToken);
 			}
+			System.out.println("Username:"+username);
 		}
 		
 		filterChain.doFilter(request, response);

@@ -1,15 +1,16 @@
 package com.example.storyapp.controller;
 
-import com.example.storyapp.dto.CreateStoryDTO;
+import com.example.storyapp.dto.StoryRequest;
 import com.example.storyapp.dto.PageResponseDTO;
 import com.example.storyapp.dto.StoryDTO;
-import com.example.storyapp.dto.UpdateStoryDTO;
+import com.example.storyapp.dto.StoryResponse;
 import com.example.storyapp.mapper.StoryMapper;
 import com.example.storyapp.model.Story;
 import com.example.storyapp.story.StoryService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,25 +19,40 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/stories")
 public class StoryController {
+	//region 0. Constant
 	private final StoryService storyService;
+	//endregion
+	//region 1. Attribute
+	//endregion
+	//region 2.Constructors
 	public StoryController(StoryService storyService){
 		this.storyService=storyService;
 	}
+	//endregion
+	//region 3. CRUD Methods und Other Endpoints
 	@PostMapping
-	public StoryDTO createStory(@Valid @RequestBody CreateStoryDTO createDto){
-		Story savedStory=storyService.createStory(createDto);
+	public StoryDTO createStory(@Valid @RequestBody StoryRequest request){
+		Story savedStory=storyService.createStory(request);
 		return StoryMapper.toDTO(savedStory);
 	}
-	@GetMapping
-	public List<StoryDTO> getAllStories(){
-		return storyService.getAllStories().stream().map(StoryMapper::toDTO).toList();
+	@PreAuthorize("@storySecurity.isStoryOwner(#id)")
+	@PutMapping("/{id}")
+	public Story updateStory(
+			@PathVariable Long id,
+			@Valid @RequestBody StoryRequest Request){
+		return storyService.updateStory(id,Request);
 	}
+	@PreAuthorize("hasRole('ADMIN') or @storySecurity.isStoryOwner(#id)")
+	@DeleteMapping("/{id}")
+	public void deleteStory(@PathVariable Long id){
+		storyService.deleteStoryById(id);
+	}
+	
 	@GetMapping("/{id}")
 	public StoryDTO getStoryById(@PathVariable Long id){
 		Story story =storyService.getStoryById(id);
 		return StoryMapper.toDTO(story);
 	}
-	
 	@GetMapping(value = "/search",produces = "application/json")
 	public PageResponseDTO<StoryDTO> searchStories(@RequestParam String searchTerm, Pageable pageable)
 	{
@@ -53,16 +69,23 @@ public class StoryController {
 				pageResult.getTotalElements(),
 				pageResult.getTotalPages()
 		);
-		
 	}
-	@PutMapping("/{id}")
-	public void updateStory(@PathVariable Long id, @Valid @RequestBody UpdateStoryDTO updateDto){
-		storyService.updateStory(id,updateDto);
-		
+	@PreAuthorize("@storySecurity.isOwner(#id) or hasRole('ADMIN')")
+	@PutMapping("/{id}/publish")
+	public StoryResponse publishStory(@PathVariable Long id) {
+		return storyService.publishStory(id);
 	}
-	@DeleteMapping("/{id}")
-	public void deleteStory(@PathVariable Long id){
-		Story story = storyService.getStoryById(id);
-		storyService.deleteStory(id);
+	@PreAuthorize("@storySecurity.isOwner(#id) or hasRole('ADMIN')")
+	@PutMapping("/{id}/unpublish")
+	public StoryResponse unpublishStory(@PathVariable Long id) {
+		return storyService.unpublishStory(id);
+	}
+	@GetMapping
+	public Page<StoryResponse> getStories(
+			@RequestParam(defaultValue = "") String keyword,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size
+	){
+		return storyService.getPublishedStories(keyword,page,size);
 	}
 }

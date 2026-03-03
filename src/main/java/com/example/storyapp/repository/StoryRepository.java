@@ -16,5 +16,10 @@ public interface StoryRepository extends JpaRepository<Story, Long>{
 			String content,
 			Pageable pageable
 	);
+	Page<Story> findByPublishedTrue(Pageable pageable);
+	Page<Story> findByPublishedTrueAndTitleContainingIgnoreCase(
+			String keyword,
+			Pageable pageable
+	);
 }
 
