@@ -1,0 +1,83 @@
+## StoryApp Backend ##
+
+A Spring Boot REST API for managing stories with authentication, role-based authorization, publishing system, pagination and global exception handling.
+
+--------
+
+## 🚀 Technologies
+
+- Java 17
+- Spring Boot
+- Spring Security (JWT)
+- Spring Data JPA
+- PostgreSQL
+- Maven
+
+---
+
+## 🔐 Features
+
+- User Registration & Login (JWT)
+- Role-based Authorization (USER / ADMIN)
+- Create, Update, Delete Story
+- Publish / Unpublish Story
+- Pagination & Search
+- Global Exception Handling
+- Clean DTO Architecture
+
+---
+
+## API Endpoints
+
+# Authentication
+- POST /api/auth/register
+- POST /api/auth/login
+
+#  Stories
+- GET /api/stories?page=0&size=10
+- GET /api/stories/{id}
+- POST /api/stories
+- PUT /api/stories/{id}
+- DELETE /api/stories/{id}
+- PUT /api/stories/{id}/publish
+- PUT /api/stories/{id}/unpublish
+
+---
+
+# Architecture
+
+- Entity Layer
+- DTO Layer (Request / Response)
+- Service Layer
+- Security Layer (JWT Filter)
+- Global Exception Handler
+
+---
+
+# Security
+
+- JWT Authentication
+- Role-based Authorization
+- Owner-based Access Control
+- Stateless Session Management
+
+---
+
+# Database
+
+This project uses PostgreSQL as the primary database.
+
+You need to create a database named:
+
+storyapp
+
+Update your username and password inside:
+
+src/main/resources/application.properties
+
+
+## ▶️ How to Run
+
+```bash
+mvn clean install
+mvn spring-boot:run

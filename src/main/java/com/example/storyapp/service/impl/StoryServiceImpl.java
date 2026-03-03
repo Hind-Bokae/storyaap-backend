@@ -33,19 +33,6 @@ public class StoryServiceImpl implements StoryService {
 		this.userRepository = userRepository;
 		this.storyRepository = storyRepository;
 	}
-	@Override
-	public Page<StoryResponse> getPublishedStories(String keyword, int page, int size){
-		Pageable pageable = PageRequest.of(page, size);
-		
-		Page<Story> stories;
-		if (keyword == null || keyword.isEmpty()) {
-			stories = storyRepository.findByPublishedTrue(pageable);
-		} else {
-			stories = storyRepository
-					.findByPublishedTrueAndTitleContainingIgnoreCase(keyword, pageable);
-		}
-		return stories.map(this::convertToResponse);
-	}
 	//endregion
 	//region 3. Override Methods
 	@Override
@@ -73,7 +60,6 @@ public class StoryServiceImpl implements StoryService {
 		existingStory.setContent(storyRequest.getContent());
 		return storyRepository.save(existingStory);
 	}
-	
 	@Override
 	public void deleteStoryById(Long storyId){
 		Story existingStory = storyRepository.findById(storyId)
@@ -107,6 +93,18 @@ public class StoryServiceImpl implements StoryService {
 	public Page<Story> searchStories(String searchTerm, Pageable pageable){
 		return storyRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(searchTerm,searchTerm,pageable);
 	 }
+	@Override
+	public Page<StoryResponse> getPublishedStories(String keyword, int page, int size){
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Story> stories;
+		if (keyword == null || keyword.isEmpty()) {
+			stories = storyRepository.findByPublishedTrue(pageable);
+		} else {
+			stories = storyRepository
+					.findByPublishedTrueAndTitleContainingIgnoreCase(keyword, pageable);
+		}
+		return stories.map(this::convertToResponse);
+	}
 	//endregion
 	//region 4. Private Methods
 	private void validateStoryOwnership(Story existingStory, User authenticatedUser){
@@ -114,7 +112,6 @@ public class StoryServiceImpl implements StoryService {
 			throw new ForbiddenException("You are not allowed");
 		}
 	}
-	
 	private User getAuthenticatedUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String         username       = authentication.getName();

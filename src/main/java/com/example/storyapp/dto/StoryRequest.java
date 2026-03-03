@@ -13,34 +13,26 @@ public class StoryRequest {
 	@NotBlank(message = "Content is required")
 	@Size(min = 10, message = "Content must be at least 10 characters long")
 	private String content;
-	
 	//endregion
-	
 	//region 2. Constructors
 	public StoryRequest() {}
-	
 	public StoryRequest(String title, String content, String author) {
 		this.title = title;
 		this.content = content;
 	}
 	//endregion
-	
 	//region 3. Getters & Setters
 	public String getTitle() {
 		return title;
 	}
-	
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
 	public String getContent() {
 		return content;
 	}
-	
 	public void setContent(String content) {
 		this.content = content;
 	}
-	
 	//endregion
 }

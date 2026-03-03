@@ -18,7 +18,6 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-	
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 	
@@ -27,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 	}
-	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
 	                                HttpServletResponse response,
@@ -41,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		
 		String token = authHeader.substring(7);
 		
 		String username =null;
@@ -63,14 +60,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 								.password(user.getPassword())
 								.authorities("ROLE_"+user.getRole().name())
 								.build();
-				
 				UsernamePasswordAuthenticationToken authToken =
 						new UsernamePasswordAuthenticationToken(
 								userDetails,
 								null,
 								userDetails.getAuthorities()
 						);
-				
 				authToken.setDetails(
 						new WebAuthenticationDetailsSource()
 								.buildDetails(request)
@@ -81,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 			System.out.println("Username:"+username);
 		}
-		
 		filterChain.doFilter(request, response);
 	}
 }

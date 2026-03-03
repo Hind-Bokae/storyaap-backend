@@ -20,7 +20,6 @@ public class GlobalExceptionHandler {
 		);
 			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}
-	
 	@ExceptionHandler(ForbiddenException.class)
 	@ResponseStatus(HttpStatus.FORBIDDEN)
 	public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException errorDetails) {
@@ -30,7 +29,6 @@ public class GlobalExceptionHandler {
 		);
 		return new  ResponseEntity<>(error, HttpStatus.FORBIDDEN);
 	}
-	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<ErrorResponse> handleGeneralException(Exception errorDetails) {

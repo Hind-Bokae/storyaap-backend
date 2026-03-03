@@ -20,7 +20,6 @@ public class AuthService {
 		this.jwtService = jwtService;
 		System.out.println("Password encoder class: " +passwordEncoder.getClass());
 	}
-	
 	public void register(RegisterRequest request){
 		if(userRepository.findByUsername(request.getUsername()).isPresent()){
 			throw new UserAlreadyExistsException("Username already exists");

@@ -3,7 +3,6 @@ package com.example.storyapp.controller;
 import com.example.storyapp.dto.AuthResponse;
 import com.example.storyapp.dto.AuthenticationRequest;
 import com.example.storyapp.dto.RegisterRequest;
-import com.example.storyapp.model.User;
 import com.example.storyapp.service.AuthService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
