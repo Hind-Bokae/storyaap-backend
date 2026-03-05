@@ -20,7 +20,7 @@ public class Story {
 	@Column(nullable = false)
 	private boolean published=false;
 	private LocalDateTime createdAt;
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User author;
 	//endregion

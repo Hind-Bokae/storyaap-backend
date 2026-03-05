@@ -5,8 +5,8 @@ public class StoryResponse {
 	private Long id;
 	private String title;
 	private String content;
-	private String authorUsername;
-	private boolean isPublic;
+	private String  authorUsername;
+	private boolean isPublish;
 	//endregion
 	//region 2 Constructors
 	public StoryResponse() {
@@ -16,7 +16,7 @@ public class StoryResponse {
 		this.title = title;
 		this.content = content;
 		this.authorUsername = authorUsername;
-		this.isPublic = isPublic;
+		this.isPublish = isPublic;
 	}
 	//endregion
 	//region 3 Getters and Setters
@@ -32,8 +32,8 @@ public class StoryResponse {
 	public String getAuthorUsername() {
 		return authorUsername;
 	}
-	public boolean isPublic() {
-		return isPublic;
+	public boolean isPublish() {
+		return isPublish;
 	}
 	//endregion
 }

@@ -6,6 +6,8 @@ import com.example.storyapp.exception.UserAlreadyExistsException;
 import com.example.storyapp.model.Role;
 import com.example.storyapp.model.User;
 import com.example.storyapp.repository.UserRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +40,6 @@ public class AuthService {
 		}
 		return jwtService.generateToken(existingUser.getUsername());
 	}
+	
 	
 }

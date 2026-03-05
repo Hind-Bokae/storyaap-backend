@@ -4,7 +4,7 @@ import com.example.storyapp.repository.StoryRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("storySecurity")
 public class StorySecurity {
 	private final StoryRepository storyRepository;
 	public StorySecurity(StoryRepository storyRepository) {

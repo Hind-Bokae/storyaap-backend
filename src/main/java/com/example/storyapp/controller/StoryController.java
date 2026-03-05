@@ -6,7 +6,9 @@ import com.example.storyapp.dto.StoryDTO;
 import com.example.storyapp.dto.StoryResponse;
 import com.example.storyapp.mapper.StoryMapper;
 import com.example.storyapp.model.Story;
+import com.example.storyapp.repository.StoryRepository;
 import com.example.storyapp.story.StoryService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +33,9 @@ public class StoryController {
 	//endregion
 	//region 3. CRUD Methods und Other Endpoints
 	@PostMapping
-	public StoryDTO createStory(@Valid @RequestBody StoryRequest request){
+	public StoryResponse createStory(@Valid @RequestBody StoryRequest request){
 		Story savedStory=storyService.createStory(request);
-		return StoryMapper.toDTO(savedStory);
+		return StoryMapper.toResponse(savedStory);
 	}
 	@PreAuthorize("@storySecurity.isStoryOwner(#id)")
 	@PutMapping("/{id}")
@@ -49,9 +51,9 @@ public class StoryController {
 	}
 	
 	@GetMapping("/{id}")
-	public StoryDTO getStoryById(@PathVariable Long id){
+	public StoryResponse getStoryById(@PathVariable Long id){
 		Story story =storyService.getStoryById(id);
-		return StoryMapper.toDTO(story);
+		return StoryMapper.toResponse(story);
 	}
 	@GetMapping(value = "/search",produces = "application/json")
 	public PageResponseDTO<StoryDTO> searchStories(@RequestParam String searchTerm, Pageable pageable)
@@ -70,17 +72,19 @@ public class StoryController {
 				pageResult.getTotalPages()
 		);
 	}
-	@PreAuthorize("@storySecurity.isOwner(#id) or hasRole('ADMIN')")
+	
+	@PreAuthorize("@storySecurity.isStoryOwner(#id) or hasRole('ADMIN')")
 	@PutMapping("/{id}/publish")
 	public StoryResponse publishStory(@PathVariable Long id) {
 		return storyService.publishStory(id);
 	}
-	@PreAuthorize("@storySecurity.isOwner(#id) or hasRole('ADMIN')")
+	@PreAuthorize("@storySecurity.isStoryOwner(#id) or hasRole('ADMIN')")
 	@PutMapping("/{id}/unpublish")
 	public StoryResponse unpublishStory(@PathVariable Long id) {
 		return storyService.unpublishStory(id);
 	}
 	@GetMapping
+	@PreAuthorize("permitAll()")
 	public Page<StoryResponse> getStories(
 			@RequestParam(defaultValue = "") String keyword,
 			@RequestParam(defaultValue = "0") int page,

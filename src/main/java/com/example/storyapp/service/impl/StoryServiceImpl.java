@@ -11,6 +11,7 @@ import com.example.storyapp.repository.StoryRepository;
 import com.example.storyapp.repository.UserRepository;
 import com.example.storyapp.story.StoryService;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+
 public class StoryServiceImpl implements StoryService {
 	//region 0. Constant
 	private final StoryRepository storyRepository;
@@ -68,6 +70,7 @@ public class StoryServiceImpl implements StoryService {
 		validateStoryOwnership(existingStory, currentUser);
 		storyRepository.delete(existingStory);
 	}
+	@Transactional
 	@Override
 	public StoryResponse publishStory(Long storyId){
 		Story existingStory = storyRepository.findById(storyId)
@@ -76,6 +79,7 @@ public class StoryServiceImpl implements StoryService {
 		storyRepository.save(existingStory);
 		return convertToResponse(existingStory);
 	}
+	@Transactional
 	@Override
 	public StoryResponse unpublishStory(Long storyId){
 		Story existingStory = storyRepository.findById(storyId)
@@ -87,7 +91,7 @@ public class StoryServiceImpl implements StoryService {
 	@Override
 	public Story getStoryById(Long id){
 		return storyRepository.findById(id)
-				.orElseThrow(()-> new StoryNotFoundException("Story not found"));
+				.orElseThrow(()-> new StoryNotFoundException("Story not found with id: " + id));
 	}
 	 @Override
 	public Page<Story> searchStories(String searchTerm, Pageable pageable){
@@ -108,7 +112,8 @@ public class StoryServiceImpl implements StoryService {
 	//endregion
 	//region 4. Private Methods
 	private void validateStoryOwnership(Story existingStory, User authenticatedUser){
-		if (!existingStory.getAuthor().getId().equals(authenticatedUser.getId()) && authenticatedUser.getRole()!= Role.ADMIN) {
+		if (!existingStory.getAuthor().getId().equals(authenticatedUser.getId())
+				&& authenticatedUser.getRole()!= Role.ADMIN) {
 			throw new ForbiddenException("You are not allowed");
 		}
 	}
@@ -118,6 +123,9 @@ public class StoryServiceImpl implements StoryService {
 		return userRepository.findByUsername(username).orElseThrow(() ->
 				new RuntimeException("Authenticated User not found"));}
 	private StoryResponse convertToResponse(Story story) {
+		String username = story.getAuthor() != null
+				? story.getAuthor().getUsername()
+				: "Unknown";
 		return new StoryResponse(
 				story.getId(),
 				story.getTitle(),
